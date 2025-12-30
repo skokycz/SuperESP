@@ -14,6 +14,8 @@ Firmware pro Master ESP32-C3 s DHT22 senzorem a OLED displejem SSD1306.
 
 ## 🔌 Hardware zapojení
 
+**Podporované desky:** ESP32-C3 Super Mini (kompatibilní s esp32-c3-devkitm-1 konfigurací)
+
 ### ESP32-C3 Super Mini pinout
 
 ```
@@ -55,7 +57,7 @@ GND         →    GND              →    Zem
 
 ### Alternativní I2C piny
 
-Pokud GPIO0 a GPIO1 nejsou dostupné (některé desky mají vytržené GPIO6/7), můžete použít:
+Pokud GPIO0 a GPIO1 nejsou dostupné (např. pokud jsou již používané jinými komponentami), můžete použít:
 
 ```yaml
 i2c:
@@ -63,6 +65,8 @@ i2c:
   scl: GPIO5
   scan: true
 ```
+
+**Poznámka:** ESP32-C3 Super Mini má některé GPIO piny sdílené s flash pamětí (GPIO2, GPIO8, GPIO9). GPIO0 a GPIO1 jsou bezpečná volba pro I2C.
 
 ## 📺 OLED displej - stránky
 
