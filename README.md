@@ -13,9 +13,10 @@
 
 ## ✨ Hlavní funkce
 
-### 🎯 Aktuální (BLOK 1)
+### 🎯 Aktuální (BLOK 1-2)
 - ✅ **Flash Recovery Tool** - Obnova ESP32-C3 po ESP-IDF
 - ✅ **Test Blink Firmware** - Ověření funkčnosti ESP32
+- ✅ **Master ESP Firmware** - DHT22 senzor, WiFi monitoring
 - ✅ **Kompletní dokumentace** - Setup, hardware, troubleshooting
 
 ### 🚀 Plánované funkce
@@ -71,7 +72,7 @@ python recover.py --port COM3  # Windows
 python recover.py --port /dev/ttyUSB0  # Linux
 ```
 
-### 3. Flash test firmware
+### 3. Flash Test firmware (BLOK 1)
 
 ```bash
 # Zkopírujte secrets
@@ -82,11 +83,27 @@ cp firmware/test-blink/secrets.yaml.example firmware/test-blink/secrets.yaml
 esphome run firmware/test-blink/main.yaml
 ```
 
-### 4. Ověření
-
 LED na ESP32 by měla **blikat každou sekundu**. ✅
 
-**Kompletní návod:** [docs/SETUP.md](docs/SETUP.md)
+### 4. Flash Master firmware (BLOK 2)
+
+```bash
+# Zkopírujte secrets
+cp firmware/master/secrets.yaml.example firmware/master/secrets.yaml
+# Upravte WiFi údaje a API klíč v secrets.yaml
+
+# Zapojte DHT22 na GPIO2 (s 10kΩ pull-up)
+
+# Flashněte firmware
+esphome run firmware/master/main.yaml
+```
+
+ESP32 měří teplotu a vlhkost každých 60s. ✅
+
+**Kompletní návod:**
+- [Test firmware (BLOK 1)](firmware/test-blink/)
+- [Master firmware (BLOK 2)](firmware/master/README.md)
+- [Setup guide](docs/SETUP.md)
 
 ---
 
@@ -124,7 +141,7 @@ SuperESP/
 
 ### Fáze 1: Základ (BLOK 1-4)
 - [x] **BLOK 1:** Repository setup + Flash recovery ✅
-- [ ] **BLOK 2:** Master ESP firmware (DHT22, SD karta)
+- [x] **BLOK 2:** Master ESP firmware (DHT22, SD karta) ✅
 - [ ] **BLOK 3:** Scanner ESP firmware (WiFi scan)
 - [ ] **BLOK 4:** UART komunikace mezi ESP
 

@@ -1,0 +1,13 @@
+# Přídavná konfigurace pro SD kartu
+# Importujte do main.yaml pomocí:
+# packages:
+#   sd_card: !include sd_card.yaml
+
+# Alternativní SPI piny (pro desky bez GPIO 6/7)
+spi:
+  clk_pin: GPIO4
+  mosi_pin: GPIO5
+  miso_pin: GPIO3
+
+# SD karta (vyžaduje custom component nebo external_components)
+# TODO: Implementovat v BLOK 2.5
