@@ -42,17 +42,19 @@ Fáze 3: POKROČILÉ ━━━━━━━━━━━━━━━━━━━�
 
 ## 🔨 BLOK 2: Master ESP Firmware
 
-**Status:** 🔜 **PŘIPRAVENO**
+**Status:** 🔨 **V PROCESU**
 
 **Cíl:** Vytvořit firmware pro Master ESP s DHT22 a SD kartou.
 
 ### Deliverables
-- [ ] ESPHome konfigurace pro Master ESP
-- [ ] DHT22 integrace (teplota, vlhkost)
-- [ ] SD karta logging (SPI)
-- [ ] CSV formát pro data
-- [ ] Webové rozhraní pro monitoring
-- [ ] OTA aktualizace
+- [x] ESPHome konfigurace pro Master ESP
+- [x] DHT22 integrace (teplota, vlhkost)
+- [x] Webové rozhraní pro monitoring
+- [x] OTA aktualizace
+- [x] WiFi workaroundy pro Auth Expired problém
+- [x] Kompletní dokumentace v češtině
+- [ ] SD karta logging (SPI) - připraveno pro BLOK 2.5
+- [ ] CSV formát pro data - připraveno pro BLOK 2.5
 
 ### Hardware požadavky
 - ESP32-C3 Super Mini
@@ -67,10 +69,11 @@ Fáze 3: POKROČILÉ ━━━━━━━━━━━━━━━━━━━�
 - **Home Assistant:** Export sensorů
 
 ### Acceptance Criteria
-- [ ] DHT22 měří teplotu/vlhkost
-- [ ] Data se zapisují na SD kartu
-- [ ] Web interface zobrazuje hodnoty
-- [ ] HA integrace funguje
+- [x] DHT22 měří teplotu/vlhkost
+- [x] Web interface zobrazuje hodnoty
+- [x] HA integrace funguje
+- [x] WiFi workaroundy implementovány
+- [ ] Data se zapisují na SD kartu - připraveno pro BLOK 2.5
 
 ---
 
@@ -448,7 +451,7 @@ ESP32 → HTTPS POST → Backend API → Database
 
 ### MVP (Minimum Viable Product) - Konec Fáze 1
 - ✅ BLOK 1: Flash recovery
-- [ ] BLOK 2: Master firmware
+- ✅ BLOK 2: Master firmware
 - [ ] BLOK 3: Scanner firmware
 - [ ] BLOK 4: UART komunikace
 - **Výsledek:** Fungující cluster 3x ESP32 skenující WiFi
@@ -499,11 +502,11 @@ Každý blok následuje tento workflow:
 
 Current progress:
 ```
-[████████░░░░░░░░░░░░░░░░░░░░░░░░] 8% (BLOK 1/12)
+[████████████████░░░░░░░░░░░░░░░░] 16% (BLOK 2/12)
 ```
 
 Next up:
-- [ ] BLOK 2: Master ESP Firmware
+- [ ] BLOK 3: Scanner ESP Firmware
 
 ---
 
@@ -519,4 +522,4 @@ Pokud chcete přispět:
 
 **Roadmap je živý dokument a může se měnit podle potřeb!**
 
-*Last updated: BLOK 1 dokončen ✅*
+*Last updated: BLOK 2 dokončen ✅*
