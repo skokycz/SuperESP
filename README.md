@@ -13,9 +13,11 @@
 
 ## ✨ Hlavní funkce
 
-### 🎯 Aktuální (BLOK 1)
+### 🎯 Aktuální (BLOK 1-2)
 - ✅ **Flash Recovery Tool** - Obnova ESP32-C3 po ESP-IDF
 - ✅ **Test Blink Firmware** - Ověření funkčnosti ESP32
+- ✅ **Master ESP Firmware** - DHT22 sensor + OLED displej SSD1306
+- ✅ **OLED Display** - Zobrazení teploty, vlhkosti, WiFi stavu
 - ✅ **Kompletní dokumentace** - Setup, hardware, troubleshooting
 
 ### 🚀 Plánované funkce
@@ -34,8 +36,9 @@
 ### Základní sestava
 - **3x ESP32-C3 Super Mini** (RISC-V, WiFi 2.4GHz, 4MB flash)
 - **1x DHT22** (teplota & vlhkost)
-- **1x SD Card Reader** (SPI logging)
-- **1x SPST-102** (master/scanner mód switch)
+- **1x OLED SSD1306 0.96"** (I2C displej, 128x64)
+- **1x SD Card Reader** (SPI logging) - plánováno
+- **1x SPST-102** (master/scanner mód switch) - plánováno
 
 ### Topologie
 ```
@@ -43,7 +46,7 @@
 │   Master    │──────│  Scanner 1  │──────│  Scanner 2  │
 │   (WiFi)    │ UART │   (WiFi)    │ UART │   (WiFi)    │
 │  + DHT22    │      │             │      │             │
-│  + SD Card  │      │             │      │             │
+│  + OLED     │      │             │      │             │
 └─────────────┘      └─────────────┘      └─────────────┘
 ```
 
@@ -86,6 +89,22 @@ esphome run firmware/test-blink/main.yaml
 
 LED na ESP32 by měla **blikat každou sekundu**. ✅
 
+### 5. Flash Master firmware (BLOK 2) - volitelné
+
+```bash
+# Zkopírujte secrets
+cp firmware/master/secrets.yaml.example firmware/master/secrets.yaml
+# Upravte WiFi údaje v secrets.yaml
+
+# Připojte DHT22 sensor (GPIO2) a OLED displej (I2C: GPIO0/GPIO1)
+# Flashněte firmware
+esphome run firmware/master/main.yaml
+```
+
+OLED displej zobrazí teplotu, vlhkost a stav WiFi. 📺
+
+**Master firmware návod:** [firmware/master/README.md](firmware/master/README.md)
+
 **Kompletní návod:** [docs/SETUP.md](docs/SETUP.md)
 
 ---
@@ -124,7 +143,7 @@ SuperESP/
 
 ### Fáze 1: Základ (BLOK 1-4)
 - [x] **BLOK 1:** Repository setup + Flash recovery ✅
-- [ ] **BLOK 2:** Master ESP firmware (DHT22, SD karta)
+- [x] **BLOK 2:** Master ESP firmware (DHT22, OLED displej) ✅
 - [ ] **BLOK 3:** Scanner ESP firmware (WiFi scan)
 - [ ] **BLOK 4:** UART komunikace mezi ESP
 
