@@ -1,0 +1,81 @@
+# OLED Display konfigurace - separátní soubor pro čistší strukturu
+# Tento soubor můžete includovat v main.yaml pomocí:
+# <<: !include display.yaml
+
+# Fonty pro displej
+font:
+  - file: "gfonts://Roboto"
+    id: font_title
+    size: 10
+  - file: "gfonts://Roboto"
+    id: font_value
+    size: 10
+  - file: "gfonts://Roboto"
+    id: font_small
+    size: 8
+
+# OLED Displej SSD1306 0.96" (128x64)
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    id: oled_display
+    pages:
+      - id: page1
+        lambda: |-
+          // Hlavička
+          it.print(0, 0, id(font_title), "SuperESP Master");
+          it.line(0, 12, 128, 12);
+          
+          // Teplota
+          if (id(temp_sensor).has_state()) {
+            it.printf(0, 16, id(font_value), "Teplota: %.1f°C", id(temp_sensor).state);
+          } else {
+            it.print(0, 16, id(font_value), "Teplota: --");
+          }
+          
+          // Vlhkost
+          if (id(humidity_sensor).has_state()) {
+            it.printf(0, 28, id(font_value), "Vlhkost: %.1f%%", id(humidity_sensor).state);
+          } else {
+            it.print(0, 28, id(font_value), "Vlhkost: --");
+          }
+          
+          // WiFi status
+          if (id(wifi_ip).has_state() && id(wifi_ip).state != "") {
+            it.printf(0, 44, id(font_small), "WiFi: %s", id(wifi_ssid).state.c_str());
+            it.printf(0, 54, id(font_small), "IP: %s", id(wifi_ip).state.c_str());
+          } else {
+            it.print(0, 44, id(font_small), "WiFi: Disconnected");
+            it.print(0, 54, id(font_small), "AP: SuperESP-Master");
+          }
+
+      - id: page2
+        lambda: |-
+          // Info stránka
+          it.print(0, 0, id(font_title), "System Info");
+          it.line(0, 12, 128, 12);
+          
+          // Uptime
+          if (id(uptime_sensor).has_state()) {
+            int seconds = (int)id(uptime_sensor).state;
+            int hours = seconds / 3600;
+            int minutes = (seconds % 3600) / 60;
+            it.printf(0, 16, id(font_value), "Uptime: %dh %dm", hours, minutes);
+          }
+          
+          // WiFi signál
+          if (id(wifi_signal_sensor).has_state()) {
+            it.printf(0, 28, id(font_value), "Signal: %.0f dBm", id(wifi_signal_sensor).state);
+          }
+          
+          // Verze
+          it.print(0, 44, id(font_small), "ESPHome");
+          it.printf(0, 54, id(font_small), "BLOK 2 - Master");
+
+# Přepínání stránek každých 5 sekund
+interval:
+  - interval: 5s
+    then:
+      - display.page.show_next: oled_display
+      - component.update: oled_display
