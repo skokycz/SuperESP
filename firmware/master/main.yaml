@@ -1,0 +1,267 @@
+esphome:
+  name: superesp-master
+  friendly_name: "SuperESP Master"
+  platformio_options:
+    board_build.flash_mode: dio
+
+esp32:
+  board: esp32-c3-devkitm-1
+  framework:
+    type: esp-idf
+
+logger:
+  level: DEBUG
+
+# API pro Home Assistant
+api:
+  encryption:
+    key: !secret api_key
+
+# OTA aktualizace
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+# WiFi konfigurace
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  
+  # Fallback AP mode pokud nelze připojit k WiFi
+  ap:
+    ssid: "SuperESP-Master"
+    password: "superesp123"
+
+# Web server
+web_server:
+  port: 80
+
+# Captive portal pro fallback AP
+captive_portal:
+
+# I2C pro OLED displej
+i2c:
+  sda: GPIO1
+  scl: GPIO0
+  scan: true
+
+# DHT22 sensor pro teplotu a vlhkost
+sensor:
+  - platform: dht
+    pin: GPIO2
+    temperature:
+      name: "Temperature"
+      id: temp_sensor
+    humidity:
+      name: "Humidity"
+      id: humidity_sensor
+    update_interval: 60s
+  
+  - platform: uptime
+    name: "Uptime"
+    id: uptime_sensor
+    update_interval: 60s
+  
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    id: wifi_signal_sensor
+    update_interval: 60s
+
+# Status sensor
+binary_sensor:
+  - platform: status
+    name: "Status"
+
+# WiFi info
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "IP Address"
+      id: wifi_ip
+    ssid:
+      name: "Connected SSID"
+      id: wifi_ssid
+    mac_address:
+      name: "MAC Address"
+  
+  - platform: version
+    name: "ESPHome Version"
+
+# Fonty pro displej
+font:
+  - file: "gfonts://Roboto"
+    id: font_title
+    size: 10
+  - file: "gfonts://Roboto"
+    id: font_value
+    size: 10
+  - file: "gfonts://Roboto"
+    id: font_small
+    size: 8
+
+# OLED Displej SSD1306 0.96" (128x64)
+display:
+  - platform: ssd1306_i2c
+    model: "SSD1306 128x64"
+    address: 0x3C
+    id: oled_display
+    pages:
+      - id: page1
+        lambda: |-
+          // Hlavička
+          it.print(0, 0, id(font_title), "SuperESP Master");
+          it.line(0, 12, 128, 12);
+          
+          // Teplota
+          if (id(temp_sensor).has_state()) {
+            it.printf(0, 16, id(font_value), "Teplota: %.1f°C", id(temp_sensor).state);
+          } else {
+            it.print(0, 16, id(font_value), "Teplota: --");
+          }
+          
+          // Vlhkost
+          if (id(humidity_sensor).has_state()) {
+            it.printf(0, 28, id(font_value), "Vlhkost: %.1f%%", id(humidity_sensor).state);
+          } else {
+            it.print(0, 28, id(font_value), "Vlhkost: --");
+          }
+          
+          // WiFi status
+          if (id(wifi_ip).has_state() && id(wifi_ip).state != "") {
+            it.printf(0, 44, id(font_small), "WiFi: %s", id(wifi_ssid).state.c_str());
+            it.printf(0, 54, id(font_small), "IP: %s", id(wifi_ip).state.c_str());
+          } else {
+            it.print(0, 44, id(font_small), "WiFi: Disconnected");
+            it.print(0, 54, id(font_small), "AP: SuperESP-Master");
+          }
+
+      - id: page2
+        lambda: |-
+          // Info stránka
+          it.print(0, 0, id(font_title), "System Info");
+          it.line(0, 12, 128, 12);
+          
+          // Uptime
+          if (id(uptime_sensor).has_state()) {
+            int seconds = (int)id(uptime_sensor).state;
+            int hours = seconds / 3600;
+            int minutes = (seconds % 3600) / 60;
+            it.printf(0, 16, id(font_value), "Uptime: %dh %dm", hours, minutes);
+          }
+          
+          // WiFi signál
+          if (id(wifi_signal_sensor).has_state()) {
+            it.printf(0, 28, id(font_value), "Signal: %.0f dBm", id(wifi_signal_sensor).state);
+          }
+          
+          // Verze
+          it.print(0, 44, id(font_small), "ESPHome");
+          it.printf(0, 54, id(font_small), "BLOK 2 - Master");
+
+# Přepínání stránek každých 5 sekund
+interval:
+  - interval: 5s
+    then:
+      - display.page.show_next: oled_display
+      - component.update: oled_display
+
+# RGB LED nebo onboard LED pro indikaci barev
+# Pro RGB LED použijte GPIO 3, 4, 5 (R, G, B)
+# Pro jednoduchost použijeme GPIO 8 (onboard LED)
+output:
+  - platform: ledc
+    pin: GPIO3
+    id: red_output
+    frequency: 1000 Hz
+  - platform: ledc
+    pin: GPIO4
+    id: green_output
+    frequency: 1000 Hz
+  - platform: ledc
+    pin: GPIO5
+    id: blue_output
+    frequency: 1000 Hz
+
+light:
+  - platform: rgb
+    name: "LED"
+    id: rgb_led
+    red: red_output
+    green: green_output
+    blue: blue_output
+    restore_mode: RESTORE_DEFAULT_OFF
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 1s
+          update_interval: 1s
+
+# Tlačítka pro ovládání barev z Home Assistant
+button:
+  - platform: template
+    name: "Červená"
+    id: btn_red
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 100%
+          green: 0%
+          blue: 0%
+      - logger.log: "Stisknuto tlačítko: Červená"
+  
+  - platform: template
+    name: "Modrá"
+    id: btn_blue
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 0%
+          green: 0%
+          blue: 100%
+      - logger.log: "Stisknuto tlačítko: Modrá"
+  
+  - platform: template
+    name: "Žlutá"
+    id: btn_yellow
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 100%
+          green: 100%
+          blue: 0%
+      - logger.log: "Stisknuto tlačítko: Žlutá"
+  
+  - platform: template
+    name: "Zelená"
+    id: btn_green
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 0%
+          green: 100%
+          blue: 0%
+      - logger.log: "Stisknuto tlačítko: Zelená"
+  
+  - platform: template
+    name: "Bílá"
+    id: btn_white
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 100%
+          green: 100%
+          blue: 100%
+      - logger.log: "Stisknuto tlačítko: Bílá"
+  
+  - platform: template
+    name: "Vypnout"
+    id: btn_off
+    on_press:
+      - light.turn_off:
+          id: rgb_led
+      - logger.log: "Stisknuto tlačítko: Vypnout"
