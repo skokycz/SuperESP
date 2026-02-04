@@ -164,3 +164,104 @@ interval:
     then:
       - display.page.show_next: oled_display
       - component.update: oled_display
+
+# RGB LED nebo onboard LED pro indikaci barev
+# Pro RGB LED použijte GPIO 3, 4, 5 (R, G, B)
+# Pro jednoduchost použijeme GPIO 8 (onboard LED)
+output:
+  - platform: ledc
+    pin: GPIO3
+    id: red_output
+    frequency: 1000 Hz
+  - platform: ledc
+    pin: GPIO4
+    id: green_output
+    frequency: 1000 Hz
+  - platform: ledc
+    pin: GPIO5
+    id: blue_output
+    frequency: 1000 Hz
+
+light:
+  - platform: rgb
+    name: "LED"
+    id: rgb_led
+    red: red_output
+    green: green_output
+    blue: blue_output
+    restore_mode: RESTORE_DEFAULT_OFF
+    effects:
+      - pulse:
+          name: "Pulse"
+          transition_length: 1s
+          update_interval: 1s
+
+# Tlačítka pro ovládání barev z Home Assistant
+button:
+  - platform: template
+    name: "Červená"
+    id: btn_red
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 100%
+          green: 0%
+          blue: 0%
+      - logger.log: "Stisknuto tlačítko: Červená"
+  
+  - platform: template
+    name: "Modrá"
+    id: btn_blue
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 0%
+          green: 0%
+          blue: 100%
+      - logger.log: "Stisknuto tlačítko: Modrá"
+  
+  - platform: template
+    name: "Žlutá"
+    id: btn_yellow
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 100%
+          green: 100%
+          blue: 0%
+      - logger.log: "Stisknuto tlačítko: Žlutá"
+  
+  - platform: template
+    name: "Zelená"
+    id: btn_green
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 0%
+          green: 100%
+          blue: 0%
+      - logger.log: "Stisknuto tlačítko: Zelená"
+  
+  - platform: template
+    name: "Bílá"
+    id: btn_white
+    on_press:
+      - light.turn_on:
+          id: rgb_led
+          brightness: 100%
+          red: 100%
+          green: 100%
+          blue: 100%
+      - logger.log: "Stisknuto tlačítko: Bílá"
+  
+  - platform: template
+    name: "Vypnout"
+    id: btn_off
+    on_press:
+      - light.turn_off:
+          id: rgb_led
+      - logger.log: "Stisknuto tlačítko: Vypnout"

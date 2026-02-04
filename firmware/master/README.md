@@ -1,15 +1,17 @@
 # SuperESP Master Firmware (BLOK 2)
 
-Firmware pro Master ESP32-C3 s DHT22 senzorem a OLED displejem SSD1306.
+Firmware pro Master ESP32-C3 s DHT22 senzorem, OLED displejem SSD1306 a RGB LED ovládáním.
 
 ## 📋 Funkce
 
 - 🌡️ **DHT22 sensor** - měření teploty a vlhkosti
 - 📺 **OLED displej 0.96"** - zobrazení dat (SSD1306, 128x64, I2C)
 - 📊 **Dvě stránky displeje** - automatické přepínání každých 5 sekund
+- 💡 **RGB LED ovládání** - ovládání barevného LED přes tlačítka
+- 🎨 **6 barevných tlačítek** - červená, modrá, žlutá, zelená, bílá, vypnout
 - 📡 **WiFi monitoring** - stav připojení, IP adresa, síla signálu
-- 🏠 **Home Assistant integrace** - export všech sensorů
-- 🌐 **Web server** - monitoring přes prohlížeč
+- 🏠 **Home Assistant integrace** - export všech sensorů a tlačítek
+- 🌐 **Web server** - monitoring a ovládání přes prohlížeč
 - 🔄 **OTA aktualizace** - bezdrátové nahrávání firmware
 
 ## 🔌 Hardware zapojení
@@ -54,6 +56,21 @@ GND         →    GND              →    Zem
 ```
 
 **Poznámka:** DHT22 může vyžadovat pull-up rezistor 4.7kΩ mezi DATA a VCC.
+
+### RGB LED zapojení
+
+```
+RGB LED     →    ESP32-C3 Pin    →    Popis
+─────────────────────────────────────────────
+R (červená) →    GPIO3            →    PWM výstup
+G (zelená)  →    GPIO4            →    PWM výstup
+B (modrá)   →    GPIO5            →    PWM výstup
+GND (-)     →    GND              →    Společná zem
+```
+
+**Poznámka:** Pro RGB LED s common anode (společná +) použijte rezistory 220Ω na každém kanálu. Pro common cathode (společná -) připojte GND přímo k zemi.
+
+**Alternativa:** Pokud nemáte RGB LED, můžete použít jednobarevné LED na GPIO3 pro testování.
 
 ### Alternativní I2C piny
 
@@ -228,6 +245,17 @@ Po připojení k Home Assistant budou dostupné tyto entity:
 
 ### Binary Sensors
 - `binary_sensor.superesp_master_status` - Status připojení
+
+### Světla
+- `light.superesp_master_led` - RGB LED s plnou kontrolou barev a jasu
+
+### Tlačítka
+- `button.superesp_master_cervena` - Zapnout červenou barvu
+- `button.superesp_master_modra` - Zapnout modrou barvu
+- `button.superesp_master_zluta` - Zapnout žlutou barvu
+- `button.superesp_master_zelena` - Zapnout zelenou barvu
+- `button.superesp_master_bila` - Zapnout bílou barvu
+- `button.superesp_master_vypnout` - Vypnout LED
 
 ### Text Sensors
 - `text_sensor.superesp_master_ip_address` - IP adresa
